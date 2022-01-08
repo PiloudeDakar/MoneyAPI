@@ -1,0 +1,75 @@
+name: MoneyAPI
+author: PiloudeDakar
+api: 4.0.0
+version: 1.0.0-BETA
+main: PiloudeDakar\MoneyAPI\Main
+
+commands:
+  pay:
+    usage: pay
+    description: Send a player money from youre balance
+    permission: moneyapi.commands.players.pay
+
+  topmoney:
+    usage: topmoney
+    description: Get the leaderboard of balances
+    permission: moneyapi.commands.players.topmoney
+
+  mymoney:
+    usage: mymoney
+    description: Get your balance amount
+    permission: moneyapi.commands.players.getmoney
+
+  addmoney:
+    usage: addmoney
+    description: Add money to a balance
+    permission: moneyapi.commands.admin.addmoney
+
+  removemoney:
+    usage: removemoney
+    description: Remove money to a balance
+    permission: moneyapi.commands.admin.removemoney
+
+  clearmoney:
+    usage: clearmoney
+    description: Clear the money of a balance
+    permission: moneyapi.commands.admin.clearmoney
+
+  setmoney:
+    usage: setmoney
+    description: Set the money of a balance
+    permission: moneyapi.commands.admin.setmoney
+
+  banmoney:
+    usage: banmoney
+    description: Ban a player from the MoneyAPI's actions (exepted the admins features)
+    permission: moneyapi.commands.admin.banmoney
+
+  unbanmoney:
+    usage: unbanmoney
+    description: Unban a player from the MoneyAPI's action
+    permission: moneyapi.commands.admin.unbanmoney
+
+permissions:
+  moneyapi:
+    default: op
+    children:
+      moneyapi.commands:
+        default: op
+        children:
+          moneyapi.commands.player:
+            default: not op
+            children:
+              - moneyapi.commands.players.pay
+              - moneyapi.commands.players.topmoney
+              - moneyapi.commands.players.mymoney
+              - moneyapi.commands.players.getmoney
+          moneyapi.commands.admin:
+            default: op
+            children:
+              - moneyapi.commands.admin.addmoney
+              - moneyapi.commands.admin.removemoney
+              - moneyapi.commands.admin.clearmoney
+              - moneyapi.commands.admin.setmoney
+              - moneyapi.commands.admin.banmoney
+              - moneyapi.commands.admin.unbanmoney
