@@ -2,7 +2,7 @@ name: MoneyAPI
 author: PiloudeDakar
 api: 4.0.0
 version: 1.0.0-BETA
-main: PiloudeDakar\MoneyAPI\Main
+main: PiloudeDakar\MoneyAPI\MoneyAPI
 
 commands:
   pay:
