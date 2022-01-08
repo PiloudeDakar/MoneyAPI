@@ -51,25 +51,24 @@ commands:
     permission: moneyapi.commands.admin.unbanmoney
 
 permissions:
-  moneyapi:
+  moneyapi.commands.players.pay:
+    default: not op
+  moneyapi.commands.players.topmoney:
+    default: not op
+  moneyapi.commands.players.mymoney:
+    default: not op
+  moneyapi.commands.players.getmoney:
+    default: not op
+
+  moneyapi.commands.admin.addmoney:
     default: op
-    children:
-      moneyapi.commands:
-        default: op
-        children:
-          moneyapi.commands.player:
-            default: not op
-            children:
-              - moneyapi.commands.players.pay
-              - moneyapi.commands.players.topmoney
-              - moneyapi.commands.players.mymoney
-              - moneyapi.commands.players.getmoney
-          moneyapi.commands.admin:
-            default: op
-            children:
-              - moneyapi.commands.admin.addmoney
-              - moneyapi.commands.admin.removemoney
-              - moneyapi.commands.admin.clearmoney
-              - moneyapi.commands.admin.setmoney
-              - moneyapi.commands.admin.banmoney
-              - moneyapi.commands.admin.unbanmoney
+  moneyapi.commands.admin.removemoney:
+    default: op
+  moneyapi.commands.admin.clearmoney:
+    default: op
+  moneyapi.commands.admin.setmoney:
+    default: op
+  moneyapi.commands.admin.banmoney:
+    default: op
+  moneyapi.commands.admin.unbanmoney:
+    default: op
