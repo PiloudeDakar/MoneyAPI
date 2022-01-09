@@ -19,6 +19,9 @@ class MoneyAPI extends PluginBase
 
     private Config $moneyData;
     private Config $bannedData;
+    private Config $config;
+
+    private int $basicAmount = 1000;
 
     private static MoneyAPI $MoneyAPI;
 
@@ -28,6 +31,62 @@ class MoneyAPI extends PluginBase
     public const RETURN_SENDER_NOT_FOUNDED = -4;
     public const RETURN_BANNED = -5;
     public const RETURN_ERROR = -6;
+
+    /**
+     * @return int
+     */
+    public function getBasicAmount(): int
+    {
+        return $this->basicAmount;
+    }
+
+    /**
+     * @param int $basicAmount
+     */
+    public function setBasicAmount(int $basicAmount): void
+    {
+        $this->basicAmount = $basicAmount;
+    }
+
+    /**
+     * @return Config
+     */
+    public function getBannedData(): Config
+    {
+        return $this->bannedData;
+    }
+
+    /**
+     * @param Config $bannedData
+     */
+    public function setBannedData(Config $bannedData): void
+    {
+        $this->bannedData = $bannedData;
+    }
+
+    /**
+     * @return Config
+     */
+    public function getMoneyData(): Config
+    {
+        return $this->moneyData;
+    }
+
+    /**
+     * @param Config $moneyData
+     */
+    public function setMoneyData(Config $moneyData): void
+    {
+        $this->moneyData = $moneyData;
+    }
+
+    /**
+     * @return Config
+     */
+    public function getConfig(): Config
+    {
+        return $this->config;
+    }
 
     protected function onEnable(): void
     {
@@ -40,9 +99,18 @@ class MoneyAPI extends PluginBase
             fopen($this->getDataFolder() . 'banned.yml', 'x+');
             file_put_contents($this->getDataFolder() . 'banned.yml', DefaultConfigs::YAML);
         }
+        if (!file_exists($this->getDataFolder() . 'config.yml')) {
+            fopen($this->getDataFolder() . 'config.yml', 'x+');
+            file_put_contents($this->getDataFolder() . 'config.yml', DefaultConfigs::YAML);
+        }
+
         $this->getServer()->getPluginManager()->registerEvents(new MListener(), $this);
+
         $this->bannedData = new Config($this->getDataFolder() . 'banned.yml', Config::YAML);
         $this->moneyData = new Config($this->getDataFolder() . 'moneys/basic.json', Config::JSON);
+        $this->config = new Config($this->getDataFolder() . 'config.yml', Config::YAML);
+        $this->basicAmount = $this->config->get('basicBalanceAmount');
+
         self::$MoneyAPI = $this;
         $this->getScheduler()->scheduleRepeatingTask(new UnbanningTask(), 1200);
     }
@@ -237,11 +305,11 @@ class MoneyAPI extends PluginBase
     }
 
     public function clearPlayer(Player $player): int{
-        return $this->setBalance($player->getName(), 0);
+        return $this->setBalance($player->getName(), $this->basicAmount);
     }
 
     public function clearBalance(string $balance): int{
-        return $this->setBalance($balance, 0);
+        return $this->setBalance($balance, $this->basicAmount);
     }
 
     public function banBalance(string $balance, int|null $duration = null, string|null $duration_type){

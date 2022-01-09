@@ -12,4 +12,8 @@ interface DefaultConfigs{
 }';
     public const YAML = '---
 ...';
+    public const CONFIG = '---
+#The amount a player will have after clear and on first connection
+basicBalanceAmount: 1000
+...'
 }

@@ -1,5 +1,7 @@
-# MoneyAPI
- A simple money api for your server minecraft. You can use it in plugin with all the economy system and in terms of api for manage money in your plugins.
+<h1 align="center"> MoneyAPI </h1>
+
+
+> A simple money api for your server minecraft. You can use it in plugin with all the economy system and in terms of api for manage money in your plugins.
 (It have for goal to replace EconomyAPI that will disappear).
 
 __Disclaimer__ :

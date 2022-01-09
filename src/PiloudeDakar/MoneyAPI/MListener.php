@@ -12,8 +12,7 @@ class MListener implements Listener{
 
     public function onPlayerJoin(PlayerJoinEvent $event){
         $name = $event->getPlayer()->getName();
-        $moneyData = new Config(MoneyAPI::getInstance()->getDataFolder() . "moneys/basic.json", Config::JSON);
-        $moneyData->setNested('players.' . $name, 0);
-        $moneyData->save();
+        MoneyAPI::getInstance()->getMoneyData()->setNested('players.' . $name, MoneyAPI::getInstance()->getBasicAmount());
+        MoneyAPI::getInstance()->getMoneyData()->save();
     }
 }
