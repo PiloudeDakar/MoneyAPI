@@ -6,7 +6,6 @@ namespace PiloudeDakar\MoneyAPI;
 
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerJoinEvent;
-use pocketmine\utils\Config;
 
 class MListener implements Listener{
 
