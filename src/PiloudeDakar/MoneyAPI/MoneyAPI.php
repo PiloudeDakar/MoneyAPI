@@ -22,12 +22,12 @@ class MoneyAPI extends PluginBase
 
     private static MoneyAPI $MoneyAPI;
 
-    public const RETURN_NICE = 0;
-    public const RETURN_NO_ENOUGH_MONEY = 1;
-    public const RETURN_RECEIVER_NOT_FOUNDED = 2;
-    public const RETURN_SENDER_NOT_FOUNDED = 3;
-    public const RETURN_BANNED = 4;
-    public const RETURN_ERROR = 5;
+    public const RETURN_NICE = -1;
+    public const RETURN_NO_ENOUGH_MONEY = -2;
+    public const RETURN_RECEIVER_NOT_FOUNDED = -3;
+    public const RETURN_SENDER_NOT_FOUNDED = -4;
+    public const RETURN_BANNED = -5;
+    public const RETURN_ERROR = -6;
 
     protected function onEnable(): void
     {
@@ -52,10 +52,11 @@ class MoneyAPI extends PluginBase
         switch ($command) {
             case 'pay':
                 if ($sender instanceof Player) {
-                    if (!isset($args[0]) or !is_string($args[0]) or !isset($args[1]) or !is_int($args[1])) {
+                    if (!isset($args[0]) or !isset($args[1])) {
                         $sender->sendMessage('§cUsage : /pay [string : player] [int : amount]');
                         return true;
                     }
+                    $args = [strval($args[0]), intval($args[1])];
                     if ($this->isBan($sender->getName()) or $this->isBan($args[0])){
                         $sender->sendMessage('§cImpossible : one of the players is banned from MoneyAPI');
                         return true;
@@ -65,23 +66,40 @@ class MoneyAPI extends PluginBase
                 break;
             case 'topmoney':
                 $topMoney = $this->topMoney(5);
+                if ($topMoney == self::RETURN_ERROR){
+                    $sender->sendMessage("§cNo enough players to display the leaderboard");
+                    return true;
+                }
                 $arrayKeys = array_keys($topMoney);
                 $sender->sendMessage("§2Money leaderboard :
 §c1 - §1$arrayKeys[0] : §9" . $topMoney[$arrayKeys[0]] . "
 §c2 - §1$arrayKeys[1] : §9" . $topMoney[$arrayKeys[1]] . "
 §c3 - §1$arrayKeys[2] : §9" . $topMoney[$arrayKeys[2]] . "
 §c4 - §1$arrayKeys[3] : §9" . $topMoney[$arrayKeys[3]] . "
-§c5 - §1$arrayKeys[4] : §9" . $topMoney[$arrayKeys[4]] . "");
+§c5 - §1$arrayKeys[4] : §9" . $topMoney[$arrayKeys[4]]);
                 break;
             case 'mymoney':
-                if ($sender instanceof Player) {
-                    $sender->sendMessage('§1 You have : ' . $this->getBalance($sender->getName()) . '$');
+                if ($sender instanceof Player) $sender->sendMessage('§9 You have : §a' . $this->getBalance($sender->getName()) . '§9$');
+                break;
+            case 'getmoney':
+                if (!isset($args[0])) {
+                    $sender->sendMessage('§cUsage : /getmoney [string : player]');
+                    return true;
                 }
+                $args[0] = strval($args[0]);
+                $amount = $this->getBalance($args[0]);
+                if ($amount == self::RETURN_RECEIVER_NOT_FOUNDED) {
+                    $sender->sendMessage('§cPlayer not founded.');
+                    return true;
+                }
+                $sender->sendMessage("§9$args[0] have a balance of §1$amount §9$");
                 break;
             case 'addmoney':
-                if (!isset($args[0]) or !is_string($args[0]) or !isset($args[1]) or !is_int($args[1])) {
+                if (!isset($args[0]) or !isset($args[1])) {
                     $sender->sendMessage('§cUsage : /addmoney [string : player] [int : amount]');
+                    return true;
                 }
+                $args = [strval($args[0]), intval($args[1])];
                 if ($this->transaction(null, $args[0], $args[1]) == self::RETURN_RECEIVER_NOT_FOUNDED) {
                     $sender->sendMessage("§cThis player isn't registered on the server ( §3$args[0] §c) !");
                 } else {
@@ -89,9 +107,11 @@ class MoneyAPI extends PluginBase
                 }
                 break;
             case 'removemoney':
-                if (!isset($args[0]) or !is_string($args[0]) or !isset($args[1]) or !is_int($args[1])) {
+                if (!isset($args[0]) or !isset($args[1])) {
                     $sender->sendMessage('§cUsage : /removemoney [string : player] [int : amount]');
+                    return true;
                 }
+                $args = [strval($args[0]), intval($args[1])];
                 $transaction = $this->transaction(null, $args[0], -$args[1]);
                 if ($transaction == self::RETURN_RECEIVER_NOT_FOUNDED) {
                     $sender->sendMessage("§cThis player isn't registered on the server ( §3$args[0] §c) !");
@@ -102,27 +122,47 @@ class MoneyAPI extends PluginBase
                 }
                 break;
             case 'clearmoney':
-                if (!isset($args[0]) or !is_string($args[0])) {
+                if (!isset($args[0])) {
                     $sender->sendMessage('§cUsage : /clearmoney [string : player]');
+                    return true;
                 }
-                if ($this->transaction(null, $args[0], $args[1]) == self::RETURN_RECEIVER_NOT_FOUNDED) {
+                $args[0] = strval($args[0]);
+                $clear = $this->clearBalance($args[0]);
+                if ($clear == self::RETURN_RECEIVER_NOT_FOUNDED) {
                     $sender->sendMessage("§cThis player isn't registered on the server ( §3$args[0] §c) !");
-                } else {
-                    $sender->sendMessage("§9$args[0] §ahave been cleared of §9$args[1]§a. His new sold is §9" . $this->moneyData->getNested("players.$args[0]") . '§a$');
+                    return true;
                 }
+                $sender->sendMessage("§9$args[0] §ahave been cleared of §9$clear §a$.");
                 break;
             case 'setmoney':
-                if (!isset($args[0]) or !is_string($args[0]) or !isset($args[1]) or !is_int($args[1])) {
+                if (!isset($args[0]) or !isset($args[1])) {
                     $sender->sendMessage('§cUsage : /setmoney [string : player] [int : amount]');
+                    return true;
                 }
-                $this->setBalance($args[0], $args[1]);
+                $args = [strval($args[0]), intval($args[1])];
+                if ($this->setBalance($args[0], $args[1]) == self::RETURN_RECEIVER_NOT_FOUNDED) {
+                    $sender->sendMessage('§cPlayer not founded.');
+                    return true;
+                }
+                $sender->sendMessage("§9$args[0]'s balance have been set to §a$args[1] §9$");
                 break;
             case 'banmoney':
-                if (!isset($args[0]) or !is_string($args[0]) or !isset($args[1]) or !is_int($args[1]) && !is_null($args[1]) or !isset($args[2]) or !is_string($args[2]) && !is_null($args[2])) $sender->sendMessage('§aUsage : /banmoney [string : player] [int|null : duration] ["m"|"h"|"d"|null : duration type]');
+
+                if (!isset($args[0])) {
+                    $sender->sendMessage('§aUsage : /banmoney [string : player] [int|null : duration] ["m"|"h"|"d"|null : duration type]');
+                    return true;
+                }
+                if (!isset($args[1])) $args[1] = null;
+                if (!isset($args[2])) $args[2] = null;
+                $args = [strval($args[0]), intval($args[1]), strval($args[2])];
                 $this->banBalance($args[0], $args[1], $args[2]);
                 break;
             case 'unbanmoney':
-                if (!isset($args[0]) or !is_string($args[0])) $sender->sendMessage('§aUsage : /unbanmoney [string : player]');
+                if (!isset($args[0])) {
+                    $sender->sendMessage('§aUsage : /unbanmoney [string : player]');
+                    return true;
+                }
+                $args[0] = strval($args[0]);
                 $this->unbanBalance($args[0]);
         }
         return true;
@@ -138,7 +178,7 @@ class MoneyAPI extends PluginBase
     #
     #By PiloudeDakar
 
-    public static function getInstance()
+    public static function getInstance(): MoneyAPI
     {
         return self::$MoneyAPI;
     }
@@ -158,7 +198,7 @@ class MoneyAPI extends PluginBase
         }
     }
 
-    public function pay(Player $sender, string $receiver, int $amount)
+    public function pay(Player $sender, string $receiver, int $amount): int
     {
         $transaction = $this->transaction($sender->getName(), $receiver, $amount);
         switch ($transaction) {
@@ -175,8 +215,9 @@ class MoneyAPI extends PluginBase
         return self::RETURN_NICE;
     }
 
-    public function topMoney(int $length = null): array{
+    public function topMoney(int $length = null): array|int{
         $balances = $this->moneyData->getNested('players');
+        if ($length > count($balances)) return self::RETURN_ERROR;
         arsort($balances);
         return array_slice($balances, 0, $length, true);
     }
@@ -187,15 +228,20 @@ class MoneyAPI extends PluginBase
         return self::RETURN_RECEIVER_NOT_FOUNDED;
     }
 
-    public function setBalance(string $balance, int $amount){
+    public function setBalance(string $balance, int $amount): int{
         $balances = $this->moneyData->get('players');
         if (!key_exists($balance, $balances)) return self::RETURN_RECEIVER_NOT_FOUNDED;
         $this->moneyData->setNested("players.$balance", $amount);
+        $this->moneyData->save();
         return $balances[$balance];
     }
 
-    public function clearPlayer(Player $player){
-        $this->setBalance($player->getName(), 0);
+    public function clearPlayer(Player $player): int{
+        return $this->setBalance($player->getName(), 0);
+    }
+
+    public function clearBalance(string $balance): int{
+        return $this->setBalance($balance, 0);
     }
 
     public function banBalance(string $balance, int|null $duration = null, string|null $duration_type){
@@ -214,17 +260,17 @@ class MoneyAPI extends PluginBase
                     break;
             }
             $this->bannedData->set($balance, $expiration);
+            $this->bannedData->save();
         }
     }
 
     public function isBan(string $balance): bool{
-        $config = new Config($this->getDataFolder() . 'banned.yml');
-        return $config->exists($balance);
+        return $this->bannedData->exists($balance);
     }
 
     public function unbanBalance(string $balance){
-        $config = new Config($this->getDataFolder() . 'banned.yml');
-        if ($config->exists($balance)) $config->remove($balance);
+        if ($this->bannedData->exists($balance)) $this->bannedData->remove($balance);
+        $this->bannedData->save();
     }
 
     public function transaction(string|null $sender, string $receiver, int $amount): int
@@ -239,6 +285,7 @@ class MoneyAPI extends PluginBase
 
         if (!key_exists($receiver, $balances)) return self::RETURN_RECEIVER_NOT_FOUNDED;
         $this->moneyData->setNested('players.' . $receiver, $balances[$receiver] + $amount);
+        $this->moneyData->save();
 
         return self::RETURN_NICE;
     }

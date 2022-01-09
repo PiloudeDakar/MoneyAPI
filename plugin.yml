@@ -18,7 +18,12 @@ commands:
   mymoney:
     usage: mymoney
     description: Get your balance amount
-    permission: moneyapi.commands.players.getmoney
+    permission: moneyapi.commands.players.mymoney
+
+  getmoney:
+    usage: getmoney
+    description: Get a balance amont
+    permission: moneyapi.commands.players.mymoney
 
   addmoney:
     usage: addmoney
@@ -51,35 +56,34 @@ commands:
     permission: moneyapi.commands.admin.unbanmoney
 
 permissions:
-  moneyapi:
+  moneyapi.commands.players.pay:
+    description: /pay command
+    default: true
+  moneyapi.commands.players.topmoney:
+    description: /topmoney command
+    default: true
+  moneyapi.commands.players.mymoney:
+    description: /mymoney command
+    default: true
+  moneyapi.commands.players.getmoney:
+    description: /getmoney command
+    default: true
+
+  moneyapi.commands.admin.addmoney:
+    description: /addmoney command
     default: op
-    children:
-      moneyapi.commands:
-        default: op
-        children:
-          moneyapi.commands.player:
-            default: not op
-            children:
-              moneyapi.commands.players.pay:
-                description: /pay command
-              moneyapi.commands.players.topmoney:
-                description: /topmoney command
-              moneyapi.commands.players.mymoney:
-                description: /mymoney command
-              moneyapi.commands.players.getmoney:
-                description: /getmoney command
-          moneyapi.commands.admin:
-            default: op
-            children:
-              moneyapi.commands.admin.addmoney:
-                description: /addmoney command
-              moneyapi.commands.admin.removemoney:
-                description: /removemoney command
-              moneyapi.commands.admin.clearmoney:
-                description: /clearmoney command
-              moneyapi.commands.admin.setmoney:
-                description: /setmoney command
-              moneyapi.commands.admin.banmoney:
-                description: /banmoney command
-              moneyapi.commands.admin.unbanmoney:
-                description: /unbanmoney command
+  moneyapi.commands.admin.removemoney:
+    description: /removemoney command
+    default: op
+  moneyapi.commands.admin.clearmoney:
+    description: /clearmoney command
+    default: op
+  moneyapi.commands.admin.setmoney:
+    description: /setmoney command
+    default: op
+  moneyapi.commands.admin.banmoney:
+    description: /banmoney command
+    default: op
+  moneyapi.commands.admin.unbanmoney:
+    description: /unbanmoney command
+    default: op
