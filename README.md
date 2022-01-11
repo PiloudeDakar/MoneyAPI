@@ -1,6 +1,6 @@
 <h1 align="center"> MoneyAPI </h1>
 <br>
-<p align="center"><img src="https://github.com/PiloudeDakar/MoneyAPI/blob/c12e6c596ebbd339aa27bc47744255849ef5c442/icon.png" length="300" align="center"></p>
+<p align="center"><img src="https://github.com/PiloudeDakar/MoneyAPI/blob/e8f8aa6659098d8ea6f3929b0f2762a797467f7d/icon.png" width="250" align="center"></p>
 <br>
 
 > A simple money api for your server minecraft. You can use it in plugin with all the economy system and in terms of api for manage money in your plugins.
